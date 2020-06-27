@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef MD_BOOTLOADER
 
-#    include "samd51j18a.h"
+#    include "sam.h"
 #    include "issi3733_driver.h"
 #    include "config.h"
 
@@ -98,7 +98,8 @@ void    i2c1_stop(void);
 #endif  // MD_BOOTLOADER
 
 void    i2c0_init(void);
-uint8_t i2c0_transmit(uint8_t address, uint8_t *data, uint16_t length, uint16_t timeout);
+int i2c0_transmit(uint8_t address, uint8_t *data, uint16_t length, uint16_t timeout);
+int i2c0_read(uint8_t address, uint8_t *data, uint16_t length, uint16_t timeout);
 void    i2c0_stop(void);
 
 #endif  // _I2C_MASTER_H_

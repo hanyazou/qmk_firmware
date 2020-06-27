@@ -179,11 +179,11 @@ void process_record_tap_hint(keyrecord_t *record) {
  * FIXME: Needs documentation.
  */
 void process_record(keyrecord_t *record) {
+    if (!process_record_quantum(record)) return;
+
     if (IS_NOEVENT(record->event)) {
         return;
     }
-
-    if (!process_record_quantum(record)) return;
 
     action_t action = store_or_get_action(record->event.pressed, record->event.key);
     dprint("ACTION: ");

@@ -42,7 +42,7 @@ typedef uint32_t matrix_col_t;
 
 #define MATRIX_ROW_SHIFTER ((matrix_row_t)1)
 
-#define MATRIX_IS_ON(row, col) (matrix_get_row(row) && (1 << col))
+#define MATRIX_IS_ON(row, col) (matrix_get_row(row) & (1 << col))
 
 #ifdef __cplusplus
 extern "C" {

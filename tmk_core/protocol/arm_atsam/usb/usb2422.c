@@ -70,10 +70,11 @@ void USB_write2422_block(void) {
 }
 
 void USB2422_init(void) {
-    Gclk *   pgclk = GCLK;
-    Mclk *   pmclk = MCLK;
+#pragma message "need USB AHB ARB setting"
+//    Gclk *   pgclk = GCLK;
+//    Mclk *   pmclk = MCLK;
     Port *   pport = PORT;
-    Oscctrl *posc  = OSCCTRL;
+//    Oscctrl *posc  = OSCCTRL;
     Usb *    pusb  = USB;
 
     DBGC(DC_USB2422_INIT_BEGIN);
@@ -83,10 +84,10 @@ void USB2422_init(void) {
     }
 
     // setup peripheral and synchronous bus clocks to USB
-    pgclk->PCHCTRL[10].bit.GEN  = 0;
-    pgclk->PCHCTRL[10].bit.CHEN = 1;
-    pmclk->AHBMASK.bit.USB_     = 1;
-    pmclk->APBBMASK.bit.USB_    = 1;
+//    pgclk->PCHCTRL[10].bit.GEN  = 0;
+//    pgclk->PCHCTRL[10].bit.CHEN = 1;
+//    pmclk->AHBMASK.bit.USB_     = 1;
+//    pmclk->APBBMASK.bit.USB_    = 1;
 
     // setup port pins for D-, D+, and SOF_1KHZ
     pport->Group[0].PMUX[12].reg          = 0x77;  // PA24, PA25, function column H for USB D-, D+
@@ -95,6 +96,7 @@ void USB2422_init(void) {
     pport->Group[1].PMUX[11].bit.PMUXE    = 7;  // PB22, function column H for USB SOF_1KHz output
     pport->Group[1].PINCFG[22].bit.PMUXEN = 1;
 
+#if 0
     // configure and enable DFLL for USB clock recovery mode at 48MHz
     posc->DFLLCTRLA.bit.ENABLE = 0;
     while (posc->DFLLSYNC.bit.ENABLE) {
@@ -124,6 +126,7 @@ void USB2422_init(void) {
     while (posc->DFLLSYNC.bit.ENABLE) {
         DBGC(DC_USB2422_INIT_OSC_SYNC_ENABLING);
     }
+#endif
 
     pusb->DEVICE.CTRLA.bit.SWRST = 1;
     while (pusb->DEVICE.SYNCBUSY.bit.SWRST) {

@@ -47,13 +47,19 @@
 #define DEVICE_MODE_ONLY true
 #define SAMD11 DEVICE_MODE_ONLY
 
+#if __SAMD51J18A__
 #ifndef ARM_MATH_CM4
 #    define ARM_MATH_CM4
+#endif
+#elif __SAMD21G18A__
+#ifndef ARM_MATH_CM0PLUS
+#    define ARM_MATH_CM0PLUS
+#endif
 #endif
 
 #include "compiler.h"
 #undef LITTLE_ENDIAN  // redefined in samd51j18a.h
-#include "samd51j18a.h"
+#include "sam.h"
 #include <stdbool.h>
 #include <string.h>
 #include "arm_math.h"
@@ -892,6 +898,7 @@ void usb_disable(struct usb_module *module_inst) {
         ;
 }
 
+#if __SAMD51J18A__
 /**
  * \brief Interrupt handler for the USB module.
  */
@@ -908,7 +915,18 @@ void USB_1_Handler(void) { _usb_device_interrupt_handler(); }
 void USB_2_Handler(void) { _usb_device_interrupt_handler(); }
 
 void USB_3_Handler(void) { _usb_device_interrupt_handler(); }
-
+#elif  __SAMD21G18A__
+/**
+ * \brief Interrupt handler for the USB module.
+ */
+void USB_Handler(void) {
+    if (_usb_instances->hw->DEVICE.CTRLA.bit.MODE) {
+    } else {
+        /*device mode ISR */
+        _usb_device_interrupt_handler();
+    }
+}
+#endif
 /**
  * \brief Get the default USB module settings
  *
@@ -959,10 +977,16 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     uint32_t i, j;
     uint32_t pad_transn, pad_transp, pad_trim;
 
+#if __SAMD51J18A__
     Gclk *   pgclk = GCLK;
     Mclk *   pmclk = MCLK;
-    Port *   pport = PORT;
     Oscctrl *posc  = OSCCTRL;
+#endif
+#if __SAMD21G18A__
+    Gclk *   pgclk = GCLK;
+    Pm *     pmclk = PM;
+#endif
+    Port *   pport = PORT;
 
     _usb_instances = module_inst;
 
@@ -973,13 +997,23 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     pmclk->AHBMASK.bit.USB_  = 1;
     pmclk->APBBMASK.bit.USB_ = 1;
 
+#if __SAMD51J18A__
     /* Set up the USB DP/DN pins */
     pport->Group[0].PMUX[12].reg          = 0x77;  // PA24, PA25, function column H for USB D-, D+
     pport->Group[0].PINCFG[24].bit.PMUXEN = 1;
     pport->Group[0].PINCFG[25].bit.PMUXEN = 1;
     pport->Group[1].PMUX[11].bit.PMUXE    = 7;  // PB22, function column H for USB SOF_1KHz output
     pport->Group[1].PINCFG[22].bit.PMUXEN = 1;
+#endif
 
+#if __SAMD21G18A__
+    /* Set up the USB DP/DN pins */
+    pport->Group[0].PMUX[12].reg          = 0x66;  // PA24, PA25, function column G for USB D-, D+
+    pport->Group[0].PINCFG[24].bit.PMUXEN = 1;
+    pport->Group[0].PINCFG[25].bit.PMUXEN = 1;
+#endif
+
+#if __SAMD51J18A__
     // configure and enable DFLL for USB clock recovery mode at 48MHz
     posc->DFLLCTRLA.bit.ENABLE = 0;
     while (posc->DFLLSYNC.bit.ENABLE)
@@ -1002,10 +1036,17 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     posc->DFLLCTRLA.bit.ENABLE = 1;
     while (posc->DFLLSYNC.bit.ENABLE)
         ;
+#endif
 
+#if __SAMD51J18A__
     /* Setup clock for module */
     pgclk->PCHCTRL[GCLK_USB].bit.GEN  = 0;
     pgclk->PCHCTRL[GCLK_USB].bit.CHEN = 1;
+#endif
+#if __SAMD21G18A__
+    /* Setup clock for module */
+    pgclk->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_USB;
+#endif
 
     /* Reset */
     hw->DEVICE.CTRLA.bit.SWRST = 1;
@@ -1068,10 +1109,15 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
         module_inst->device_endpoint_enabled_callback_mask[j]    = 0;
     }
 
+#if __SAMD51J18A__
     /* Enable interrupts for this USB module */
     NVIC_EnableIRQ(USB_0_IRQn);
     NVIC_EnableIRQ(USB_2_IRQn);
     NVIC_EnableIRQ(USB_3_IRQn);
+#elif __SAMD21G18A__
+    /* Enable interrupts for this USB module */
+    NVIC_EnableIRQ(USB_IRQn);
+#endif
 
     return STATUS_OK;
 }

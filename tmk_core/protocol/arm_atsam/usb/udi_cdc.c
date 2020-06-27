@@ -44,7 +44,7 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
-#include "samd51j18a.h"
+#include "sam.h"
 #include "conf_usb.h"
 #include "usb_protocol.h"
 #include "usb_protocol_cdc.h"
@@ -56,6 +56,7 @@
 #include "udi_device_conf.h"
 #include "stdarg.h"
 #include "tmk_core/protocol/arm_atsam/clks.h"
+#include "arm_atsam/printf.h"
 
 #ifdef CDC
 
@@ -406,6 +407,21 @@ bool udi_cdc_comm_setup(void) {
                     udd_g_ctrlreq.payload_size = sizeof(usb_cdc_line_coding_t);
                     return true;
                 case USB_REQ_CDC_SET_CONTROL_LINE_STATE:
+		    // __xprintf("DTR(%s) RTS(%s)", (udd_g_ctrlreq.req.wValue & CDC_CTRL_SIGNAL_DTE_PRESENT) ? "ON" : "OFF", (udd_g_ctrlreq.req.wValue & CDC_CTRL_SIGNAL_ACTIVATE_CARRIER) ? "ON" : "OFF");
+		    if (udd_g_ctrlreq.req.wValue & CDC_CTRL_SIGNAL_DTE_PRESENT) {
+			// PORT->Group[0].OUTSET.reg = (1 << 17); // OFF
+			PORT->Group[0].OUTSET.reg = (1 << 15); // OFF
+		    } else {
+			// PORT->Group[0].OUTCLR.reg = (1 << 17); // ON
+			PORT->Group[0].OUTCLR.reg = (1 << 15); // ON
+		    }
+		    if (udd_g_ctrlreq.req.wValue & CDC_CTRL_SIGNAL_ACTIVATE_CARRIER) {
+			// PORT->Group[0].OUTSET.reg = (1 << 18); // OFF
+			PORT->Group[0].OUTSET.reg = (1 << 9); // OFF
+		    } else {
+			// PORT->Group[0].OUTCLR.reg = (1 << 18); // ON
+			PORT->Group[0].OUTCLR.reg = (1 << 9); // ON
+		    }
                     // According cdc spec 1.1 chapter 6.2.14
                     //              UDI_CDC_SET_DTR_EXT(port, (0 !=
                     //                      (udd_g_ctrlreq.req.wValue
@@ -1136,6 +1152,9 @@ int CDC_printf(const char *_Format, ...) {
 // global "inbuf" if desired
 inbuf_t inbuf;
 
+char sbuf[CDC_INBUF_SIZE] = { 0 };
+static int scount = 0;
+
 uint32_t CDC_input_buf(inbuf_t inbuf, uint32_t inbuf_size) {
     int RXChar;
     int entered = 0;
@@ -1148,31 +1167,46 @@ uint32_t CDC_input_buf(inbuf_t inbuf, uint32_t inbuf_size) {
         switch (RXChar) {
             case '\t':  // tab - repeat last
                 inbuf.count                = inbuf.lastcount;
+		scount = inbuf.lastcount;
                 inbuf.buf[inbuf.count + 1] = 0;
-                CDC_print(inbuf.buf);
+		sbuf[scount + 1] = 0;
+                // CDC_print(inbuf.buf);
+                CDC_print(sbuf);
                 break;
             case '\r':  // enter
-                inbuf.buf[inbuf.count] = 0;
-                inbuf.lastcount        = inbuf.count;
+                inbuf.buf[scount] = 0;
+                inbuf.lastcount        = scount;
+                // inbuf.buf[inbuf.count] = 0;
+                // inbuf.lastcount        = inbuf.count;
                 inbuf.count            = 0;
                 entered                = 1;
+		scount = 0;
+		CDC_printf("enter(%d)\r\n\0", inbuf.lastcount);
+		CDC_printf("\"%s\"\r\n\0", inbuf.buf);
                 break;
             case '\b':  // backspace
                 if (inbuf.count > 0) {
                     inbuf.count -= 1;
+		    scount -= 1;
                     CDC_print("\b \b\0");
-                } else
+                } else {
                     CDC_print("\a\0");
+		}
                 break;
             default:
                 if ((RXChar >= 32) && (RXChar <= 126)) {
                     if (inbuf.count < inbuf_size - 1) {
                         inbuf.buf[inbuf.count]     = RXChar;
+			sbuf[scount] = RXChar;
                         inbuf.buf[inbuf.count + 1] = 0;
+			sbuf[scount + 1] = 0;
                         CDC_print(&inbuf.buf[inbuf.count]);
                         inbuf.count += 1;
-                    } else
+			scount += 1;
+                        CDC_printf("[%d,%d]", inbuf.count,scount);
+                    } else {
                         CDC_print("\a\0");
+		    }
                 }
                 break;
         }
@@ -1188,6 +1222,20 @@ void CDC_init(void) {
     inbuf.lastcount       = 0;
     printbuf[0]           = 0;
     cdc_tx_send_time_next = timer_read64() + CDC_SEND_INTERVAL;
+#if 0
+    PORT->Group[0].DIRSET.reg = (1 << 17);
+    PORT->Group[0].DIRSET.reg = (1 << 18);
+    PORT->Group[0].DIRSET.reg = (1 << 19);
+    PORT->Group[0].OUTSET.reg = (1 << 17);
+    PORT->Group[0].OUTSET.reg = (1 << 18);
+    PORT->Group[0].OUTSET.reg = (1 << 19);
+#endif
+    PORT->Group[0].DIRSET.reg = (1 << 8);
+    PORT->Group[0].DIRSET.reg = (1 << 9);
+    PORT->Group[0].DIRSET.reg = (1 << 15);
+    PORT->Group[0].OUTSET.reg = (1 << 8);
+    PORT->Group[0].OUTSET.reg = (1 << 9);
+    PORT->Group[0].OUTSET.reg = (1 << 15);
 }
 
 #else  // CDC line 62

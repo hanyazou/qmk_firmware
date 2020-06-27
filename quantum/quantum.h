@@ -23,6 +23,8 @@
 #if defined(PROTOCOL_CHIBIOS)
 #    include "hal.h"
 #    include "chibios_config.h"
+#elif defined(PROTOCOL_ARM_ATSAM)
+#    include "arm_atsam_protocol.h"
 #endif
 
 #include "wait.h"
@@ -206,6 +208,21 @@ typedef ioline_t pin_t;
 #    define writePin(pin, level) ((level) ? writePinHigh(pin) : writePinLow(pin))
 
 #    define readPin(pin) palReadLine(pin)
+#elif defined(PROTOCOL_ARM_ATSAM)
+typedef uint8_t pin_t;
+
+#    define PIN_NUM(pin)  (pin & 0x1f)
+#    define PIN_PORT(pin)  (PORT->Group[(pin >> 5)])
+#    define PIN_MASK(pin)  ((uint32_t)(1 << PIN_NUM(pin)))
+#    define setPinInput(pin) do { PIN_PORT(pin).DIRCLR.reg = PIN_MASK(pin); PIN_PORT(pin).PINCFG[PIN_NUM(pin)].reg = 2; } while(0)
+#    define setPinInputHigh(pin) do { PortGroup *p = &PIN_PORT(pin); p->DIRCLR.reg = PIN_MASK(pin); p->OUTSET.reg = PIN_MASK(pin); p->PINCFG[PIN_NUM(pin)].reg = 6; } while(0)
+#    define setPinOutput(pin) do { PortGroup *p = &PIN_PORT(pin); p->DIRSET.reg = PIN_MASK(pin); p->PINCFG[PIN_NUM(pin)].reg = 0; } while(0)
+
+#    define writePinHigh(pin) do { PIN_PORT(pin).OUTSET.reg = PIN_MASK(pin); } while(0)
+#    define writePinLow(pin) do { PIN_PORT(pin).OUTCLR.reg = PIN_MASK(pin); } while(0)
+#    define writePin(pin, level) do { PortGroup *p = &PIN_PORT(pin); if (level) { p->OUT.reg |= PIN_MASK(pin); } else { p->OUT.reg &= ~PIN_MASK(pin); } } while(0)
+
+#    define readPin(pin) ((PIN_PORT(pin).IN.reg & PIN_MASK(pin)) ? 1 : 0)
 #endif
 
 #define SEND_STRING(string) send_string_P(PSTR(string))

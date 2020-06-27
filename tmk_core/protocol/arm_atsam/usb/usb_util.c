@@ -1,4 +1,4 @@
-#include "samd51j18a.h"
+#include "sam.h"
 #include "string.h"
 #include "usb_util.h"
 

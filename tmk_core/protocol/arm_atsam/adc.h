@@ -20,9 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define ADC_5V_START_LEVEL 2365
 
+#if __SAMD51J18A__
 #define ADC_5V ADC_INPUTCTRL_MUXPOS_AIN12_Val
 #define ADC_CON1 ADC_INPUTCTRL_MUXPOS_AIN14_Val
 #define ADC_CON2 ADC_INPUTCTRL_MUXPOS_AIN13_Val
+#elif __SAMD21G18A__
+#define ADC_5V 0
+#define ADC_CON1 0
+#define ADC_CON2 0
+#endif
 
 extern uint16_t v_5v;
 extern uint16_t v_5v_avg;

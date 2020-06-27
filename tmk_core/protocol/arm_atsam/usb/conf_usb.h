@@ -72,7 +72,9 @@
 #define USB_DEVICE_SERIAL_NAME SERIAL_NUM
 
 // Comment out USB_DEVICE_SERIAL_USE_BOOTLOADER_SERIAL to prevent ROM lookup of factory programmed serial number
+#if __SAMD51J18A__
 #define USB_DEVICE_SERIAL_USE_BOOTLOADER_SERIAL
+#endif
 
 /**
  * Device speeds support

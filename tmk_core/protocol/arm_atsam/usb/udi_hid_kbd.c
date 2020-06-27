@@ -44,8 +44,8 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
-#include "samd51j18a.h"
-#include "d51_util.h"
+#include "sam.h"
+#include "dxx_util.h"
 #include "conf_usb.h"
 #include "usb_protocol.h"
 #include "udd.h"
@@ -166,12 +166,15 @@ static bool udi_hid_kbd_setreport(void) {
     return false;
 }
 
+void puts_(const char *);
 bool udi_hid_kbd_send_report(void) {
     if (!main_b_kbd_enable) {
+	puts_("DIS\n");
         return false;
     }
 
     if (udi_hid_kbd_b_report_trans_ongoing) {
+	puts_("ONG\n");
         return false;
     }
 

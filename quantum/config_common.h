@@ -280,6 +280,19 @@
 #        define F14 PAL_LINE(GPIOF, 14)
 #        define F15 PAL_LINE(GPIOF, 15)
 #    endif
+#elif defined(PROTOCOL_ARM_ATSAM)
+#define PINDEF(port, pad) ((pin_t)((port << 5) | (pad)))
+#        define  A02 PINDEF(0, 2)
+#        define  A04 PINDEF(0, 4)
+#        define  A05 PINDEF(0, 5)
+#        define  A06 PINDEF(0, 6)
+#        define  A07 PINDEF(0, 7)
+#        define  A08 PINDEF(0, 8)
+#        define  A09 PINDEF(0, 9)
+#        define  A10 PINDEF(0, 10)
+#        define  A11 PINDEF(0, 11)
+#        define  B08 PINDEF(1, 8)
+#        define  B09 PINDEF(1, 9)
 #endif
 
 /* USART configuration */

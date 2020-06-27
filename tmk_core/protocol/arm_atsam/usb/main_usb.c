@@ -15,11 +15,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "samd51j18a.h"
+#include "sam.h"
 #include "conf_usb.h"
 #include "udd.h"
 
 uint8_t keyboard_protocol = 1;
+#ifdef COMMAND_ENABLE
+// dummy to satisfy tmk_core/common/command.c
+uint8_t keyboard_idle = 0;
+#endif
+
 
 void main_suspend_action(void) { ui_powerdown(); }
 

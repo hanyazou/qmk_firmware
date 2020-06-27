@@ -18,11 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ARM_ATSAM_PROTOCOL_H_
 #define _ARM_ATSAM_PROTOCOL_H_
 
-#include "samd51j18a.h"
+#include "sam.h"
 #include "md_bootloader.h"
 
 #include "timer.h"
-#include "d51_util.h"
+#include "dxx_util.h"
 #include "clks.h"
 #include "wait.h"
 #include "adc.h"

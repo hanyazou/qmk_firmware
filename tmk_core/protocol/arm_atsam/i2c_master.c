@@ -39,12 +39,37 @@ volatile uint8_t i2c_led_q_running;
 
 #endif  // !defined(MD_BOOTLOADER) && defined(RGB_MATRIX_ENABLE)
 
+// #define SERCOM_I2C0 SERCOM5
+#define SERCOM_I2C0 SERCOM0
+
+#if 0
+void SERCOM5_Handler(void) {
+    if (SERCOM5->I2CM.INTFLAG.bit.ERROR) {
+        SERCOM5->I2CM.INTFLAG.reg = SERCOM_I2CM_INTENCLR_ERROR;
+    }
+}
+#endif
+
+void SERCOM0_Handler(void) {
+    if (SERCOM0->I2CM.INTFLAG.bit.ERROR) {
+        SERCOM0->I2CM.INTFLAG.reg = SERCOM_I2CM_INTENCLR_ERROR;
+    }
+}
+
 void i2c0_init(void) {
     DBGC(DC_I2C0_INIT_BEGIN);
 
     CLK_set_i2c0_freq(CHAN_SERCOM_I2C0, FREQ_I2C0_DEFAULT);
 
     // MCU
+#if 0
+    // PA22 and PA23 for I2C (SERCOM5)
+    PORT->Group[0].PMUX[11].bit.PMUXE    = 3;
+    PORT->Group[0].PMUX[11].bit.PMUXO    = 3;
+    PORT->Group[0].PINCFG[22].bit.PMUXEN = 1;
+    PORT->Group[0].PINCFG[23].bit.PMUXEN = 1;
+#endif
+    // PA8 and PA9 for I2C (SERCOM0)
     PORT->Group[0].PMUX[4].bit.PMUXE    = 2;
     PORT->Group[0].PMUX[4].bit.PMUXO    = 2;
     PORT->Group[0].PINCFG[8].bit.PMUXEN = 1;
@@ -53,49 +78,83 @@ void i2c0_init(void) {
     // I2C
     // Note: SW Reset handled in CLK_set_i2c0_freq clks.c
 
-    SERCOM0->I2CM.CTRLA.bit.MODE = 5;  // Set master mode
+    SERCOM_I2C0->I2CM.CTRLA.bit.MODE = 5;  // Set master mode
 
-    SERCOM0->I2CM.CTRLA.bit.SPEED    = 0;  // Set to 1 for Fast-mode Plus (FM+) up to 1 MHz
-    SERCOM0->I2CM.CTRLA.bit.RUNSTDBY = 1;  // Enabled
+    SERCOM_I2C0->I2CM.CTRLA.bit.SPEED    = 0;  // Set to 1 for Fast-mode Plus (FM+) up to 1 MHz
+    SERCOM_I2C0->I2CM.CTRLA.bit.RUNSTDBY = 1;  // Enabled
 
-    SERCOM0->I2CM.CTRLA.bit.ENABLE = 1;  // Enable the device
-    while (SERCOM0->I2CM.SYNCBUSY.bit.ENABLE) {
+    SERCOM_I2C0->I2CM.CTRLA.bit.ENABLE = 1;  // Enable the device
+    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.ENABLE) {
         DBGC(DC_I2C0_INIT_SYNC_ENABLING);
     }  // Wait for SYNCBUSY.ENABLE to clear
 
-    SERCOM0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
-    while (SERCOM0->I2CM.SYNCBUSY.bit.SYSOP) {
+    SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
+    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) {
         DBGC(DC_I2C0_INIT_SYNC_SYSOP);
     }
-    while (SERCOM0->I2CM.STATUS.bit.BUSSTATE != 1) {
+    while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) {
         DBGC(DC_I2C0_INIT_WAIT_IDLE);
     }  // Wait while not idle
 
     DBGC(DC_I2C0_INIT_COMPLETE);
 }
 
-uint8_t i2c0_start(uint8_t address) {
-    SERCOM0->I2CM.ADDR.bit.ADDR = address;
-    while (SERCOM0->I2CM.SYNCBUSY.bit.SYSOP) {
+#define TO() do { if (timer_elapsed(start_time) >= timeout) { return -2; } } while(0)
+
+int i2c0_start(uint8_t address, uint16_t start_time, uint16_t timeout) {
+    SERCOM_I2C0->I2CM.ADDR.bit.ADDR = address;
+    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) {
     }
-    while (SERCOM0->I2CM.INTFLAG.bit.MB == 0) {
+    while (SERCOM_I2C0->I2CM.INTFLAG.bit.MB == 0) {
+	TO();
     }
-    while (SERCOM0->I2CM.STATUS.bit.RXNACK) {
+    if (SERCOM_I2C0->I2CM.STATUS.bit.RXNACK) {
+	SERCOM_I2C0->I2CM.CTRLB.bit.CMD = 3;
+	while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+	while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) { } // wait bus IDLE
+	return -1;
     }
 
     return 1;
 }
 
-uint8_t i2c0_transmit(uint8_t address, uint8_t *data, uint16_t length, uint16_t timeout) {
+uint8_t i2c0_start_read(uint8_t address) {
+    SERCOM_I2C0->I2CM.ADDR.bit.ADDR = address | 1;
+    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) {
+    }
+    while (SERCOM_I2C0->I2CM.INTFLAG.bit.SB == 0) {
+    }
+    while (SERCOM_I2C0->I2CM.STATUS.bit.RXNACK) {
+    }
+
+    return 1;
+}
+
+int i2c0_transmit(uint8_t address, uint8_t *data, uint16_t length, uint16_t timeout) {
     if (!length) return 0;
 
-    i2c0_start(address);
+    if (timeout == 0) { timeout = 100; }
+    uint16_t start_time = timer_read();
+
+    int err = i2c0_start(address << 1, start_time, timeout);
+    if (err < 0) {
+	if (err == -2) {
+	    SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
+	}
+	// while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+	// while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) { }  // Wait while not idle
+	return err;
+    } else {
+	// SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
+	// while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+	// while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) { }  // Wait while not idle
+    }
 
     while (length) {
-        SERCOM0->I2CM.DATA.bit.DATA = *data;
-        while (SERCOM0->I2CM.INTFLAG.bit.MB == 0) {
+        SERCOM_I2C0->I2CM.DATA.bit.DATA = *data;
+        while (SERCOM_I2C0->I2CM.INTFLAG.bit.MB == 0) {
         }
-        while (SERCOM0->I2CM.STATUS.bit.RXNACK) {
+        while (SERCOM_I2C0->I2CM.STATUS.bit.RXNACK) {
         }
 
         data++;
@@ -107,16 +166,84 @@ uint8_t i2c0_transmit(uint8_t address, uint8_t *data, uint16_t length, uint16_t 
     return 1;
 }
 
+int i2c0_read(uint8_t address, uint8_t *data, uint16_t length, uint16_t timeout) {
+    if (!length) return 0;
+
+    if (timeout == 0) { timeout = 100; }
+
+    uint16_t start_time = timer_read();
+
+    // i2c0_start_read(address |  1);
+    // SERCOM_I2C0->I2CM.CTRLB.bit.ACKACT = 0;
+    SERCOM_I2C0->I2CM.ADDR.bit.ADDR = ((address << 1) | 1);
+    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+    while (SERCOM_I2C0->I2CM.INTFLAG.bit.SB == 0) {
+	if (timer_elapsed(start_time) >= timeout) {
+	    SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
+	    return -2;
+	}
+	if (SERCOM_I2C0->I2CM.STATUS.bit.RXNACK) {
+	    SERCOM_I2C0->I2CM.CTRLB.bit.CMD = 3;
+	    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+	    while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) { // wait bus IDLE
+		if (timer_elapsed(start_time) >= timeout) {
+		    SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
+		    break;
+		}
+	    }
+	    return -1;
+	}
+    }
+#if 0
+    if (SERCOM_I2C0->I2CM.STATUS.bit.RXNACK) {
+	SERCOM_I2C0->I2CM.CTRLB.bit.CMD = 3;
+	while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+	while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) { } // wait bus IDLE
+	return -1;
+    }
+#endif
+
+    *data++ = SERCOM_I2C0->I2CM.DATA.bit.DATA;
+
+    while (length) {
+	if (length == 1) {
+	    // stop
+	    // while (SERCOM_I2C0->I2CM.STATUS.bit.CLKHOLD == 0) { }
+	    CLK_delay_us(25);
+	    SERCOM_I2C0->I2CM.CTRLB.bit.ACKACT = 1;
+	    SERCOM_I2C0->I2CM.CTRLB.bit.CMD = 3;
+	    while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP) { }
+	    while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) {
+		if (timer_elapsed(start_time) >= timeout) {
+		    SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE = 1;  // Force into IDLE state
+		    return -3;
+		}
+	    } // wait bus IDLE
+	    break;
+	}
+
+	SERCOM_I2C0->I2CM.CTRLB.bit.ACKACT = 0;
+	SERCOM_I2C0->I2CM.CTRLB.bit.CMD = 2;
+	while (SERCOM_I2C0->I2CM.INTFLAG.bit.MB == 0 && SERCOM_I2C0->I2CM.INTFLAG.bit.SB == 0) { }
+	*data++ = SERCOM_I2C0->I2CM.DATA.bit.DATA;
+	length--;
+    }
+
+    // i2c0_stop();
+
+    return 1;
+}
+
 void i2c0_stop(void) {
-    if (SERCOM0->I2CM.STATUS.bit.CLKHOLD || SERCOM0->I2CM.INTFLAG.bit.MB == 1 || SERCOM0->I2CM.STATUS.bit.BUSSTATE != 1) {
-        SERCOM0->I2CM.CTRLB.bit.CMD = 3;
-        while (SERCOM0->I2CM.SYNCBUSY.bit.SYSOP)
+    if (SERCOM_I2C0->I2CM.STATUS.bit.CLKHOLD || SERCOM_I2C0->I2CM.INTFLAG.bit.MB == 1 || SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1) {
+        SERCOM_I2C0->I2CM.CTRLB.bit.CMD = 3;
+        while (SERCOM_I2C0->I2CM.SYNCBUSY.bit.SYSOP)
             ;
-        while (SERCOM0->I2CM.STATUS.bit.CLKHOLD)
+        while (SERCOM_I2C0->I2CM.STATUS.bit.CLKHOLD)
             ;
-        while (SERCOM0->I2CM.INTFLAG.bit.MB)
+        while (SERCOM_I2C0->I2CM.INTFLAG.bit.MB)
             ;
-        while (SERCOM0->I2CM.STATUS.bit.BUSSTATE != 1)
+        while (SERCOM_I2C0->I2CM.STATUS.bit.BUSSTATE != 1)
             ;
     }
 }

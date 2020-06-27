@@ -49,7 +49,7 @@
 #endif
 
 #undef LITTLE_ENDIAN  // redefined in samd51j18a.h
-#include "samd51j18a.h"
+#include "sam.h"
 #include "ui.h"
 
 //! Sequence process running each \c SEQUENCE_PERIOD ms

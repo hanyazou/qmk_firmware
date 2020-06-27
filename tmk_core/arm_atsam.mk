@@ -12,18 +12,24 @@ HEX = $(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
 EEP = $(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT)
 BIN =
 
-COMMON_VPATH += $(LIB_PATH)/arm_atsam/packs/atmel/SAMD51_DFP/1.0.70/include
+COMMON_VPATH += $(LIB_PATH)/arm_atsam/packs/atmel/SAMD21_DFP/1.3.304/samd21a/include
+#COMMON_VPATH += $(LIB_PATH)/arm_atsam/packs/atmel/SAMD51_DFP/1.0.70/include
 COMMON_VPATH += $(LIB_PATH)/arm_atsam/packs/arm/cmsis/5.0.1/CMSIS/Include
 
 COMPILEFLAGS += -funsigned-char
 COMPILEFLAGS += -funsigned-bitfields
 COMPILEFLAGS += -ffunction-sections
-COMPILEFLAGS += -fshort-enums
-COMPILEFLAGS += -fno-inline-small-functions
+COMPILEFLAGS += -fdata-sections 
+#COMPILEFLAGS += -fshort-enums
+#COMPILEFLAGS += -fno-inline-small-functions
 COMPILEFLAGS += -fno-strict-aliasing
-COMPILEFLAGS += -mfloat-abi=hard
-COMPILEFLAGS += -mfpu=fpv4-sp-d16
-COMPILEFLAGS += -mthumb
+#COMPILEFLAGS += -fno-common 
+COMPILEFLAGS += -DCORTEX_USE_FPU=FALSE
+#COMPILEFLAGS += -mfloat-abi=hard
+#COMPILEFLAGS += -mfpu=fpv4-sp-d16
+#COMPILEFLAGS += -mthumb
+COMPILEFLAGS += $(THUMBFLAGS)
+THUMBFLAGS = -DTHUMB_PRESENT -mno-thumb-interwork -DTHUMB_NO_INTERWORKING -mthumb -DTHUMB
 
 #ALLOW_WARNINGS = yes
 
@@ -37,9 +43,13 @@ LDFLAGS += -Wl,-Map="%OUT%%PROJ_NAME%.map"
 LDFLAGS += -Wl,--start-group
 LDFLAGS += -Wl,--end-group
 LDFLAGS += --specs=rdimon.specs
-LDFLAGS += -T$(LIB_PATH)/arm_atsam/packs/atmel/SAMD51_DFP/1.0.70/gcc/gcc/samd51j18a_flash.ld
+#LDFLAGS += -T$(LIB_PATH)/arm_atsam/packs/atmel/SAMD21_DFP/1.3.304/samd21a/gcc/gcc/samd21g18a_flash.ld
+#LDFLAGS += -T$(LIB_PATH)/arm_atsam/packs/atmel/SAMD51_DFP/1.0.70/gcc/gcc/samd51j18a_flash.ld
 
 OPT_DEFS += -DPROTOCOL_ARM_ATSAM
+ifeq ($(strip $(USB_DUALPORT_ENABLE)), yes)
+  OPT_DEFS += -DUSB_DUALPORT_ENABLE
+endif
 
 MCUFLAGS = -mcpu=$(MCU)
 MCUFLAGS += -D__$(ARM_ATSAM)__

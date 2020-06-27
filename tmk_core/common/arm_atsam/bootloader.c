@@ -15,9 +15,51 @@
  */
 
 #include "bootloader.h"
-#include "samd51j18a.h"
+// #include "arm_atsam_protocol.h"
+#include "sam.h"
 #include "md_bootloader.h"
 
+
+#if 1
+void bootloader_jump(void) {
+    *(volatile uint32_t *)0xE000ED0C = 0x05FA0004;
+
+    while (1) {
+    }  // Wait on timeout
+}
+#endif
+
+#if 0
+void bootloader_jump(void) {
+
+  /* Rebase the Stack Pointer */
+  __set_MSP( *(uint32_t *)(0) );
+
+  /* Rebase the vector table base address */
+  SCB->VTOR = 0;
+
+  /* Jump to application Reset Handler in the application */
+  asm("bx %0"::"r"(*(uint32_t *)4));
+}
+#endif
+
+#if 0
+void bootloader_jump(void) {
+    WDT->CTRL.bit.ENABLE = 0;
+    while (WDT->STATUS.bit.SYNCBUSY) {
+    }
+    WDT->CONFIG.bit.WINDOW   = 0;
+    WDT->CONFIG.bit.PER      = 0;
+    WDT->EWCTRL.bit.EWOFFSET = 0;
+    WDT->CTRL.bit.ENABLE    = 1;
+    while (WDT->STATUS.bit.SYNCBUSY) {
+    }
+    while (1) {
+    }  // Wait on timeout
+}
+#endif
+
+#if 0
 // Set watchdog timer to reset. Directs the bootloader to stay in programming mode.
 void bootloader_jump(void) {
 #ifdef KEYBOARD_massdrop_ctrl
@@ -55,3 +97,4 @@ void bootloader_jump(void) {
     while (1) {
     }  // Wait on timeout
 }
+#endif

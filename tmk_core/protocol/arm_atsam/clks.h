@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FREQ_DFLL_DEFAULT 48000000  // DFLL frequency / usb clock
 #define FREQ_SPI_DEFAULT 1000000    // spi to 595 shift regs
 #define FREQ_I2C0_DEFAULT 100000    // i2c to hub
+// #define FREQ_I2C0_DEFAULT 1000000    // i2c to hub
 #define FREQ_I2C1_DEFAULT I2C_HZ    // i2c to LED drivers
 #define FREQ_TC45_DEFAULT 1000000   // 1 usec resolution
 
@@ -45,9 +46,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FREQ_XOSC0 16000000
 
 #define CHAN_SERCOM_SPI 2   // shift regs
-#define CHAN_SERCOM_I2C0 0  // hub
+// #define CHAN_SERCOM_I2C0 5  // both-sides
+#define CHAN_SERCOM_I2C0 0  // both-sides
+// #define CHAN_SERCOM_I2C0 0  // hub
 #define CHAN_SERCOM_I2C1 1  // led drivers
-#define CHAN_SERCOM_UART 3  // debug util
+// #define CHAN_SERCOM_UART 3  // debug util
 
 // Generator clock channels
 #define GEN_DPLL0 0

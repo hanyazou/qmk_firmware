@@ -90,6 +90,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    else
 #        error "NKRO not supported with this protocol"
 #    endif
+#else
+#    if defined(PROTOCOL_ARM_ATSAM)
+#        if defined(MOUSE_SHARED_EP)
+#            error "MOUSE_SHARED_EP not supported for ARM_ATSAM"
+#        endif
+#    endif
 #endif
 
 #ifdef KEYBOARD_SHARED_EP
