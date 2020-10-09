@@ -20,30 +20,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "config_common.h"
 
 /* USB Device descriptor parameter */
-#define VENDOR_ID           0xFEED
-#define PRODUCT_ID          0xA15E
+#define VENDOR_ID           0x03EB
+#define PRODUCT_ID          0x201D
 #define DEVICE_VER          0x0001
 
-#define MANUFACTURER        "Dygma Lab."
-#define PRODUCT             "Raise Keyboard"
+#define MANUFACTURER        "Atmel Corp."
+#define PRODUCT             "BB Q10 USB keyboard"
 #define SERIAL_NUM          "Unavailable"
 
 /* key matrix size */
-#define MATRIX_ROWS 10
-#define MATRIX_COLS 8
+#define MATRIX_ROWS 7
+#define MATRIX_COLS 5
 
 /* MCU Port name definitions */
 #define PA 0
 #define PB 1
 
 /* Port and Pin definition of key row hardware configuration */
-#define MATRIX_ROW_PORTS PB, PB, PB, PB, PB, PB, PA, PA, PB, PB, PB
-#define MATRIX_ROW_PINS   4,  5,  6,  7,  8,  9, 10, 11, 10, 11, 12
+#define MATRIX_ROW_PORTS PA, PA, PA, PA, PA, PA, PA
+#define MATRIX_ROW_PINS  19, 23,  2,  4,  5,  6,  7
 
 /* Port and Pin definition of key column hardware configuration */
-#define MATRIX_COL_PORTS PA, PA, PA, PA, PA, PA, PA, PA
-#define MATRIX_COL_PINS   0,  1,  2,  3,  4,  5,  6,  7
+#define MATRIX_COL_PORTS PA, PA, PA, PA, PA
+#define MATRIX_COL_PINS  22, 27,  0,  1,  3
 
+#if 0
 /* This Shift Register expands available hardware output lines to control additional peripherals */
 /* It uses four lines from the MCU to provide 16 output lines */
 /* Shift Register Clock configuration (MCU to ShiftRegister.RCLK) */
@@ -63,6 +64,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SR_EXP_SCLK_PORT            PA
 #define SR_EXP_SCLK_PIN             13
 #define SR_EXP_SCLK_MUX             2
+#endif
 
 /* Debug LED (Small LED Located near MCU) */
 // #define DEBUG_LED_ENABLE            1
@@ -121,8 +123,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define NO_ACTION_MACRO
 //#define NO_ACTION_FUNCTION
 
-#define RGB_MATRIX_KEYPRESSES
-#define RGB_MATRIX_LED_PROCESS_LIMIT 15
-#define RGB_MATRIX_LED_FLUSH_LIMIT 10
+//#define RGB_MATRIX_KEYPRESSES
+//#define RGB_MATRIX_LED_PROCESS_LIMIT 15
+//#define RGB_MATRIX_LED_FLUSH_LIMIT 10
 
 #include "config_led.h"

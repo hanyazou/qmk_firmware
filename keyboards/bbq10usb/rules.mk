@@ -1,9 +1,8 @@
 # project specific files
 SRC = matrix.c
-SRC += config_led.c
 
 #For platform and packs
-ARM_ATSAM = SAMD21G18A
+ARM_ATSAM = SAMD21E17A
 MCU = cortex-m0plus
 
 CUSTOM_MATRIX = yes

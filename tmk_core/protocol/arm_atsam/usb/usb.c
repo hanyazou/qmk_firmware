@@ -51,7 +51,8 @@
 #ifndef ARM_MATH_CM4
 #    define ARM_MATH_CM4
 #endif
-#elif __SAMD21G18A__
+#elif __SAMD21G18A__ || __SAMD21E17A__
+#define SAMD21
 #ifndef ARM_MATH_CM0PLUS
 #    define ARM_MATH_CM0PLUS
 #endif
@@ -915,7 +916,7 @@ void USB_1_Handler(void) { _usb_device_interrupt_handler(); }
 void USB_2_Handler(void) { _usb_device_interrupt_handler(); }
 
 void USB_3_Handler(void) { _usb_device_interrupt_handler(); }
-#elif  __SAMD21G18A__
+#elif defined(SAMD21)
 /**
  * \brief Interrupt handler for the USB module.
  */
@@ -982,7 +983,7 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     Mclk *   pmclk = MCLK;
     Oscctrl *posc  = OSCCTRL;
 #endif
-#if __SAMD21G18A__
+#if defined(SAMD21)
     Gclk *   pgclk = GCLK;
     Pm *     pmclk = PM;
 #endif
@@ -1006,7 +1007,7 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     pport->Group[1].PINCFG[22].bit.PMUXEN = 1;
 #endif
 
-#if __SAMD21G18A__
+#if defined(SAMD21)
     /* Set up the USB DP/DN pins */
     pport->Group[0].PMUX[12].reg          = 0x66;  // PA24, PA25, function column G for USB D-, D+
     pport->Group[0].PINCFG[24].bit.PMUXEN = 1;
@@ -1043,7 +1044,7 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     pgclk->PCHCTRL[GCLK_USB].bit.GEN  = 0;
     pgclk->PCHCTRL[GCLK_USB].bit.CHEN = 1;
 #endif
-#if __SAMD21G18A__
+#if defined(SAMD21)
     /* Setup clock for module */
     pgclk->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_USB;
 #endif
@@ -1114,7 +1115,7 @@ enum status_code usb_init(struct usb_module *module_inst, Usb *const hw, struct 
     NVIC_EnableIRQ(USB_0_IRQn);
     NVIC_EnableIRQ(USB_2_IRQn);
     NVIC_EnableIRQ(USB_3_IRQn);
-#elif __SAMD21G18A__
+#elif defined(SAMD21)
     /* Enable interrupts for this USB module */
     NVIC_EnableIRQ(USB_IRQn);
 #endif

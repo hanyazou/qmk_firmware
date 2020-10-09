@@ -250,7 +250,7 @@ __attribute__((section(".vectors"))) const struct {
     .pvStack = (void *)(&_estack),
 
     .pfnReset_Handler      = (void *)Reset_Handler,
-    .pfnNonMaskableInt_Handler        = (void *)NMI_Handler,
+    //.pfnNonMaskableInt_Handler        = (void *)NMI_Handler,
     .pfnHardFault_Handler  = (void *)HardFault_Handler,
     .pvReservedM12         = (void *)(0UL), /* Reserved */
     .pvReservedM11         = (void *)(0UL), /* Reserved */
@@ -259,14 +259,14 @@ __attribute__((section(".vectors"))) const struct {
     .pvReservedM8          = (void *)(0UL), /* Reserved */
     .pvReservedM7          = (void *)(0UL), /* Reserved */
     .pvReservedM6          = (void *)(0UL), /* Reserved */
-    .pfnSVCall_Handler     = (void *)SVC_Handler,
+    //.pfnSVCall_Handler     = (void *)SVC_Handler,
     .pvReservedM4          = (void *)(0UL), /* Reserved */
     .pvReservedM3          = (void *)(0UL), /* Reserved */
     .pfnPendSV_Handler     = (void *)PendSV_Handler,
     .pfnSysTick_Handler    = (void *)SysTick_Handler,
 
     .pfnUSB_Handler = (void *)USB_Handler,
-    .pfnSERCOM5_Handler = (void *)SERCOM5_Handler,
+    //.pfnSERCOM5_Handler = (void *)SERCOM5_Handler,
     .pfnTC4_Handler = (void *)TC4_Handler,
 #if 0
     /* Configurable interrupts */

@@ -15,9 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "raise.h"
+#include QMK_KEYBOARD_H
 
-#include "d21_util.h"
+#include "dxx_util.h"
 #include "debug.h"
 #include "clks.h"
 #include <string.h>
@@ -30,7 +30,7 @@ uint8_t row_ports[] = { MATRIX_ROW_PORTS };
 uint8_t row_pins[] = { MATRIX_ROW_PINS };
 uint8_t col_ports[] = { MATRIX_COL_PORTS };
 uint8_t col_pins[] = { MATRIX_COL_PINS };
-// uint32_t row_masks[2]; //NOTE: If more than PA PB used in the future, adjust code to accomodate
+uint32_t row_masks[2]; //NOTE: If more than PA PB used in the future, adjust code to accomodate
 
 __attribute__ ((weak))
 void matrix_init_kb(void) {
@@ -56,7 +56,7 @@ void matrix_init(void)
     memset(mlast, 0, MATRIX_ROWS * sizeof(matrix_row_t));
     memset(mdebounced, 0, MATRIX_ROWS * sizeof(matrix_row_t));
 
-#if 0
+#if 1
     row_masks[PA] = 0;
     row_masks[PB] = 0;
 
@@ -99,14 +99,14 @@ uint8_t matrix_scan(void)
 {
     uint8_t mchanged;
     uint8_t row;
-//    uint8_t col;
-//    uint32_t scans[2]; //PA PB
+    uint8_t col;
+    uint32_t scans[2]; //PA PB
 
     if (timer_read64() < mdebouncing) return 1; //mdebouncing == 0 when no debouncing active
 
     memset(mlatest, 0, MATRIX_ROWS * sizeof(matrix_row_t)); //Zero the result buffer
 
-#if 0
+#if 1
     for (col = 0; col < MATRIX_COLS; col++)
     {
         PORT->Group[col_ports[col]].OUTSET.reg = 1 << col_pins[col]; //Set col output
@@ -127,7 +127,7 @@ uint8_t matrix_scan(void)
     }
 #endif
 
-#if 1
+#if 0
     {
 	for(int i=0; i<5; i++) {
 	    mlatest[i] = tmp_mtx[i];

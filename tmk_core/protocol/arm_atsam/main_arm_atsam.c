@@ -57,10 +57,13 @@ uint8_t keyboard_leds(void) {
 
 void puts_(const char *s) {
     while(*s) {
-	// while (SERCOM3->USART.INTFLAG.bit.DRE == 0);
-	// SERCOM3->USART.DATA.reg = *s++;
+#if 1
+	while (SERCOM3->USART.INTFLAG.bit.DRE == 0);
+	SERCOM3->USART.DATA.reg = *s++;
+#else
 	while (SERCOM4->USART.INTFLAG.bit.DRE == 0);
 	SERCOM4->USART.DATA.reg = *s++;
+#endif
     }
 }
 
@@ -466,6 +469,31 @@ void adhoc_init(void) {
     // Set SERCOM4 clock to GCLK1 that is OSC32K or XOSC32K
     // GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK1 | GCLK_CLKCTRL_ID_SERCOM4_CORE;
 
+#if 1
+    // Disable SERCOM3
+    SERCOM3->USART.CTRLA.bit.ENABLE = 0;
+    while (SERCOM3->USART.SYNCBUSY.bit.ENABLE);
+
+    // Reset SERCOM4
+    SERCOM3->USART.CTRLA.bit.SWRST = 1;
+    while (SERCOM3->USART.SYNCBUSY.bit.SWRST);
+
+    //  MODE=1 (internal clock) DORD=1
+    SERCOM3->USART.CTRLA.reg = SERCOM_USART_CTRLA_DORD | SERCOM_USART_CTRLA_MODE_USART_INT_CLK; 
+
+    SERCOM3->USART.BAUD.reg = 63019; // Asynchronus Arithmetic 115219.12 bps at 48MHz
+    // SERCOM3->USART.BAUD.reg = 50436; // Asynchronus Arithmetic 115203.86 bps at OSC8M=8MHz
+    // SERCOM3->USART.BAUD.reg = 25271; // Asynchronus Arithmetic 38399.70 bps at OSC8M=1MHz
+    // SERCOM3->USART.BAUD.reg = 27136; // Asynchronus Arithmetic 1200 bps at (X)OSC32K=32.768kHz
+
+    //  MODE=1 (internal clock)  DORD=1 ENABLE=1
+    SERCOM3->USART.CTRLA.bit.ENABLE = 1;
+    while (SERCOM3->USART.SYNCBUSY.bit.ENABLE);
+
+    // TXEN=1
+    SERCOM3->USART.CTRLB.bit.TXEN = 1;
+    while (SERCOM3->USART.SYNCBUSY.bit.CTRLB);
+#else
     // Disable SERCOM3
     SERCOM4->USART.CTRLA.bit.ENABLE = 0;
     while (SERCOM4->USART.SYNCBUSY.bit.ENABLE);
@@ -489,6 +517,7 @@ void adhoc_init(void) {
     // TXEN=1
     SERCOM4->USART.CTRLB.bit.TXEN = 1;
     while (SERCOM4->USART.SYNCBUSY.bit.CTRLB);
+#endif
 
     // Enable PMUX for PB08 and assign function D that is SERCOM4 PAD[0]
     PORT->Group[1].PMUX[8/2].bit.PMUXE = 3;  // PB08 function column D for SERCOM4 PAD[0]

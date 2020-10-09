@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _D21_UTIL_H_
 #define _D21_UTIL_H_
 
-#include "samd21g18a.h"
+#include "sam.h"
 
 /* Debug LED */
 #if DEBUG_LED_ENABLE == 1

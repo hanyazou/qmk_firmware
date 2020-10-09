@@ -1,5 +1,4 @@
-#include "samd21g18a.h"
-// #include "samd51j18a.h"
+#include "sam.h"
 #include "timer.h"
 #include "tmk_core/protocol/arm_atsam/clks.h"
 

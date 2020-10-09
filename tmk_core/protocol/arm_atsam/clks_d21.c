@@ -24,7 +24,18 @@ volatile uint64_t ms_clk;
 // uint32_t          usec_delay_mult;
 #define USEC_DELAY_LOOP_CYCLES 3  // Sum of instruction cycles in us delay loop
 
-const uint32_t sercom_apbbase[] = {(uint32_t)SERCOM0, (uint32_t)SERCOM1, (uint32_t)SERCOM2, (uint32_t)SERCOM3, (uint32_t)SERCOM4, (uint32_t)SERCOM5};
+const uint32_t sercom_apbbase[] = {
+    (uint32_t)SERCOM0,
+    (uint32_t)SERCOM1,
+    (uint32_t)SERCOM2,
+    (uint32_t)SERCOM3,
+#ifdef SAMD_SERCOM4_INSTANCE
+    (uint32_t)SERCOM4,
+#endif
+#ifdef SAMD_SERCOM5_INSTANCE
+    (uint32_t)SERCOM5,
+#endif
+};
 // const uint8_t  sercom_pchan[]   = {7, 8, 23, 24, 34, 35};
 
 // #define USE_DPLL_IND 0
