@@ -384,6 +384,7 @@ void adhoc_init(void) {
     // Set OSC8M prescaler to 1.
     SYSCTRL->OSC8M.bit.PRESC = 0; // divide by 1
 
+#if 0
     // Init XOSC32K
     SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP(4) | SYSCTRL_XOSC32K_EN32K | SYSCTRL_XOSC32K_XTALEN;
     SYSCTRL->XOSC32K.bit.ENABLE = 1;
@@ -411,6 +412,66 @@ void adhoc_init(void) {
     while (SYSCTRL->PCLKSR.bit.DFLLLCKC == 0 || SYSCTRL->PCLKSR.bit.DFLLLCKF == 0);
     // do we need the following sync?
     while (SYSCTRL->PCLKSR.bit.DFLLRDY == 0); // wait DFLLRDY
+#else
+    // Setup DLL to 48MHz (with USB recovery mode, XOSC32K is not used)
+
+#define SYSTEM_CLOCK_DFLL_WAKEUP_LOCK_KEEP 0
+#define SYSTEM_CLOCK_DFLL_STABLE_TRACKING_TRACK_AFTER_LOCK 0
+#define SYSTEM_CLOCK_DFLL_QUICK_LOCK_ENABLE 0
+#define SYSTEM_CLOCK_DFLL_LOOP_MODE_USB_RECOVERY 
+#define dfll_wait_for_sync() while (SYSCTRL->PCLKSR.bit.DFLLRDY == 0)
+
+#define NVM_DFLL_COARSE_POS    58 /* DFLL48M Coarse calibration value bit position.*/
+#define NVM_DFLL_COARSE_SIZE   6  /* DFLL48M Coarse calibration value bit size.*/
+
+    /* Using DFLL48M COARSE CAL value from NVM Software Calibration Area Mapping
+       in DFLL.COARSE helps to output a frequency close to 48 MHz.*/
+    uint32_t coarse, dfll_val, dfll_mul, dfll_control;
+    coarse =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_DFLL_COARSE_POS / 32))
+	      >> (NVM_DFLL_COARSE_POS % 32))
+	      & ((1 << NVM_DFLL_COARSE_SIZE) - 1);
+    /* In some revision chip, the coarse calibration value is not correct. */
+    if (coarse == 0x3f) {
+	coarse = 0x1f;
+    }
+
+    dfll_val =
+	SYSCTRL_DFLLVAL_COARSE(coarse) |
+	SYSCTRL_DFLLVAL_FINE(0x1ff);
+
+    dfll_control =
+	SYSTEM_CLOCK_DFLL_WAKEUP_LOCK_KEEP |
+	SYSTEM_CLOCK_DFLL_STABLE_TRACKING_TRACK_AFTER_LOCK |
+	SYSTEM_CLOCK_DFLL_QUICK_LOCK_ENABLE |
+	SYSCTRL_DFLLCTRL_CCDIS |
+	(0 << SYSCTRL_DFLLCTRL_ONDEMAND_Pos);
+
+    dfll_control |=
+	SYSCTRL_DFLLCTRL_USBCRM |
+	SYSCTRL_DFLLCTRL_MODE | SYSCTRL_DFLLCTRL_BPLCKC;
+
+    dfll_mul =
+	SYSCTRL_DFLLMUL_CSTEP(0x1f / 8) |
+	SYSCTRL_DFLLMUL_FSTEP(10)   |
+	SYSCTRL_DFLLMUL_MUL(48000);
+
+    dfll_control |= SYSCTRL_DFLLCTRL_ENABLE;
+
+    /* Disable ONDEMAND mode while writing configurations */
+    SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_ENABLE;
+    dfll_wait_for_sync();
+
+    SYSCTRL->DFLLMUL.reg = dfll_mul;
+    SYSCTRL->DFLLVAL.reg = dfll_val;
+
+    /* Write full configuration to DFLL control register */
+    SYSCTRL->DFLLCTRL.reg = 0;
+    dfll_wait_for_sync();
+    SYSCTRL->DFLLCTRL.reg = dfll_control;
+
+    /* Wait for DFL clock source ready */
+    dfll_wait_for_sync();
+#endif
 
     // Reinit GCLK0 as 48MHz from DLL (DFLL48M)
     NVMCTRL->CTRLB.bit.RWS = 1; // 1 wait state
