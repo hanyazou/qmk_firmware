@@ -25,27 +25,6 @@ endif
 
 SDK = $(LIB_PATH)/arm_atsam_asf/microchip-asf
 
-INCS += $(SDK)/common/utils
-INCS += $(SDK)/common2/services
-INCS += $(SDK)/common2/services/delay
-INCS += $(SDK)/sam0/drivers
-INCS += $(SDK)/sam0/drivers/system
-INCS += $(SDK)/sam0/drivers/system/clock
-INCS += $(SDK)/sam0/drivers/system/clock/clock_$(SAMD_CLOCK)
-INCS += $(SDK)/sam0/drivers/sercom
-INCS += $(SDK)/sam0/drivers/system/interrupt
-INCS += $(SDK)/sam0/drivers/system/interrupt/system_interrupt_$(SAMD)
-INCS += $(SDK)/sam0/drivers/system/pinmux
-INCS += $(SDK)/sam0/drivers/system/power/power_sam_d_r_h
-INCS += $(SDK)/sam0/drivers/system/reset/reset_sam_d_r_h
-INCS += $(SDK)/sam0/utils
-INCS += $(SDK)/sam0/utils/cmsis/$(SAMD)/include
-INCS += $(SDK)/sam0/utils/cmsis/$(SAMD)/source
-INCS += $(SDK)/sam0/utils/header_files
-INCS += $(SDK)/sam0/utils/preprocessor
-INCS += $(SDK)/thirdparty/CMSIS/Include
-INCS += app/config
-
 COMPILEFLAGS += -funsigned-char
 COMPILEFLAGS += -funsigned-bitfields
 COMPILEFLAGS += -ffunction-sections
