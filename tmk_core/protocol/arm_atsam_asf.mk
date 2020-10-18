@@ -48,17 +48,8 @@ INCS += $(SDK)/thirdparty/CMSIS/Include
 #
 # DELAY driver
 #
-ifeq ($(ARM_ATSAM_ASF_DELAY_MODE),)
-ARM_ATSAM_ASF_DELAY_MODE = SYSTICK_MODE
-endif
-ifeq ($(ARM_ATSAM_ASF_DELAY_MODE),SYSTICK_MODE)
-OPT_DEFS += -DSYSTICK_MODE
-SRC += $(SDK)/common2/services/delay/sam0/systick_counter.c
-endif
-ifeq ($(ARM_ATSAM_ASF_DELAY_MODE),CYCLE_MODE)
-OPT_DEFS += -DCYCLE_MODE
 SRC += $(SDK)/common2/services/delay/sam0/cycle_counter.c
-endif
+OPT_DEFS += -DCYCLE_MODE
 
 #
 # USB driver
