@@ -128,6 +128,7 @@ extern "C"
 #    elif defined(PROTOCOL_ARM_ATSAM_ASF) /* PROTOCOL_ARM_ATSAM_ASF */
 
 #        include <compiler.h>
+#        define NO_PRINT_BIN_FORMAT
 
 #        ifdef USER_PRINT /* USER_PRINT */
 
@@ -154,6 +155,18 @@ extern "C"
 #        endif /* USER_PRINT / NORMAL PRINT */
 
 #    endif /* __AVR__ / PROTOCOL_CHIBIOS / PROTOCOL_ARM_ATSAM / PROTOCOL_ARM_ATSAM_ASF*/
+
+#ifdef NO_PRINT_BIN_FORMAT
+#define PRINT_BIN_FORMAT4 "01x"
+#define PRINT_BIN_FORMAT8 "02x"
+#define PRINT_BIN_FORMAT16 "04x"
+#define PRINT_BIN_FORMAT32 "08lx"
+#else
+#define PRINT_BIN_FORMAT4 "04b"
+#define PRINT_BIN_FORMAT8 "08b"
+#define PRINT_BIN_FORMAT16 "16b"
+#define PRINT_BIN_FORMAT32 "32lb"
+#endif
 
 // User print disables the normal print messages in the body of QMK/TMK code and
 // is meant as a lightweight alternative to NOPRINT. Use it when you only want to do
@@ -202,25 +215,25 @@ extern "C"
 #        define print_hex16(i) xprintf("%04X", i)
 #        define print_hex32(i) xprintf("%08lX", i)
 /* binary */
-#        define print_bin4(i) xprintf("%04b", i)
-#        define print_bin8(i) xprintf("%08b", i)
-#        define print_bin16(i) xprintf("%016b", i)
-#        define print_bin32(i) xprintf("%032lb", i)
-#        define print_bin_reverse8(i) xprintf("%08b", bitrev(i))
-#        define print_bin_reverse16(i) xprintf("%016b", bitrev16(i))
-#        define print_bin_reverse32(i) xprintf("%032lb", bitrev32(i))
+#        define print_bin4(i) xprintf("%" PRINT_BIN_FORMAT4, i)
+#        define print_bin8(i) xprintf("%" PRINT_BIN_FORMAT8, i)
+#        define print_bin16(i) xprintf("%" PRINT_BIN_FORMAT16, i)
+#        define print_bin32(i) xprintf("%" PRINT_BIN_FORMAT32, i)
+#        define print_bin_reverse8(i) xprintf("%" PRINT_BIN_FORMAT8, bitrev(i))
+#        define print_bin_reverse16(i) xprintf("%" PRINT_BIN_FORMAT16, bitrev16(i))
+#        define print_bin_reverse32(i) xprintf("%" PRINT_BIN_FORMAT32, bitrev32(i))
 /* print value utility */
 #        define print_val_dec(v) xprintf(#        v ": %u\n", v)
 #        define print_val_decs(v) xprintf(#        v ": %d\n", v)
 #        define print_val_hex8(v) xprintf(#        v ": %X\n", v)
 #        define print_val_hex16(v) xprintf(#        v ": %02X\n", v)
 #        define print_val_hex32(v) xprintf(#        v ": %04lX\n", v)
-#        define print_val_bin8(v) xprintf(#        v ": %08b\n", v)
-#        define print_val_bin16(v) xprintf(#        v ": %016b\n", v)
-#        define print_val_bin32(v) xprintf(#        v ": %032lb\n", v)
-#        define print_val_bin_reverse8(v) xprintf(#        v ": %08b\n", bitrev(v))
-#        define print_val_bin_reverse16(v) xprintf(#        v ": %016b\n", bitrev16(v))
-#        define print_val_bin_reverse32(v) xprintf(#        v ": %032lb\n", bitrev32(v))
+#        define print_val_bin8(v) xprintf(#        v ": %" PRINT_BIN_FORMAT8 "\n", v)
+#        define print_val_bin16(v) xprintf(#        v ": %" PRINT_BIN_FORMAT16 "\n", v)
+#        define print_val_bin32(v) xprintf(#        v ": %" PRINT_BIN_FORMAT32 "\n", v)
+#        define print_val_bin_reverse8(v) xprintf(# v ": %" PRINT_BIN_FORMAT8 "\n", bitrev(v))
+#        define print_val_bin_reverse16(v) xprintf(# v ": %" PRINT_BIN_FORMAT16 "\n", bitrev16(v))
+#        define print_val_bin_reverse32(v) xprintf(# v ": %": PRINT_BIN_FORMAT32 "\n", bitrev32(v))
 
 #    endif /* USER_PRINT / NORMAL_PRINT */
 
@@ -235,25 +248,25 @@ extern "C"
 #    define uprint_hex16(i) uprintf("%04X", i)
 #    define uprint_hex32(i) uprintf("%08lX", i)
 /* binary */
-#    define uprint_bin4(i) uprintf("%04b", i)
-#    define uprint_bin8(i) uprintf("%08b", i)
-#    define uprint_bin16(i) uprintf("%016b", i)
-#    define uprint_bin32(i) uprintf("%032lb", i)
-#    define uprint_bin_reverse8(i) uprintf("%08b", bitrev(i))
-#    define uprint_bin_reverse16(i) uprintf("%016b", bitrev16(i))
-#    define uprint_bin_reverse32(i) uprintf("%032lb", bitrev32(i))
+#    define uprint_bin4(i) uprintf("%" PRINT_BIN_FORMAT4, i)
+#    define uprint_bin8(i) uprintf("%" PRINT_BIN_FORMAT8, i)
+#    define uprint_bin16(i) uprintf("%" PRINT_BIN_FORMAT16, i)
+#    define uprint_bin32(i) uprintf("%" PRINT_BIN_FORMAT32, i)
+#    define uprint_bin_reverse8(i) uprintf("%" PRINT_BIN_FORMAT8, bitrev(i))
+#    define uprint_bin_reverse16(i) uprintf("%" PRINT_BIN_FORMAT16, bitrev16(i))
+#    define uprint_bin_reverse32(i) uprintf("%" PRINT_BIN_FORMAT32, bitrev32(i))
 /* print value utility */
 #    define uprint_val_dec(v) uprintf(#    v ": %u\n", v)
 #    define uprint_val_decs(v) uprintf(#    v ": %d\n", v)
 #    define uprint_val_hex8(v) uprintf(#    v ": %X\n", v)
 #    define uprint_val_hex16(v) uprintf(#    v ": %02X\n", v)
 #    define uprint_val_hex32(v) uprintf(#    v ": %04lX\n", v)
-#    define uprint_val_bin8(v) uprintf(#    v ": %08b\n", v)
-#    define uprint_val_bin16(v) uprintf(#    v ": %016b\n", v)
-#    define uprint_val_bin32(v) uprintf(#    v ": %032lb\n", v)
-#    define uprint_val_bin_reverse8(v) uprintf(#    v ": %08b\n", bitrev(v))
-#    define uprint_val_bin_reverse16(v) uprintf(#    v ": %016b\n", bitrev16(v))
-#    define uprint_val_bin_reverse32(v) uprintf(#    v ": %032lb\n", bitrev32(v))
+#    define uprint_val_bin8(v) uprintf(#    v ": %" PRINT_BIN_FORMAT8 "\n", v)
+#    define uprint_val_bin16(v) uprintf(#    v ": %" PRINT_BIN_FORMAT16 "\n", v)
+#    define uprint_val_bin32(v) uprintf(#    v ": %" PRINT_BIN_FORMAT32 "\n", v)
+#    define uprint_val_bin_reverse8(v) uprintf(#    v ": %" PRINT_BIN_FORMAT8 "\n", bitrev(v))
+#    define uprint_val_bin_reverse16(v) uprintf(#    v ": %" PRINT_BIN_FORMAT16 "\n", bitrev16(v))
+#    define uprint_val_bin_reverse32(v) uprintf(#    v ": %" PRINT_BIN_FORMAT32 "\n", bitrev32(v))
 
 #else /* NO_PRINT */
 
