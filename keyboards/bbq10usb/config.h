@@ -43,3 +43,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
 #define DEBOUNCE 25
+
+/*
+ * arm_atsam_asf UART console configration
+ */
+#ifdef CONSOLE_ENABLE
+#define CONF_UART_MODULE		SERCOM1
+#define CONF_UART_SERCOM_MUX_SETTING	USART_RX_1_TX_0_XCK_1
+#define CONF_UART_SERCOM_PINMUX_PAD0	PINMUX_PA16C_SERCOM1_PAD0
+#define CONF_UART_SERCOM_PINMUX_PAD1	PINMUX_PA17C_SERCOM1_PAD1
+#define CONF_UART_SERCOM_PINMUX_PAD2	PINMUX_UNUSED
+#define CONF_UART_SERCOM_PINMUX_PAD3	PINMUX_UNUSED
+#endif

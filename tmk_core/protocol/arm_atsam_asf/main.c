@@ -1,19 +1,22 @@
 #include <delay/delay.h>
-#include <port/port.h>
-#include <usart/usart.h>
+#include <system/system.h>
 
+#include "config.h"
 #include "keyboard.h"
-#include "usb.h"
+#include "print.h"
+#include "arm_atsam_asf/usb.h"
+#include "arm_atsam_asf/uart.h"
 
 int main(void)
 {
 
     system_init();
     delay_init();
+    configure_uart();
 
-    printf("Hello world!\n");
+    println("Hello world!");
 
-    arm_atsam_asf_usb_init();
+    configure_usb();
     keyboard_setup();
     keyboard_init();
 

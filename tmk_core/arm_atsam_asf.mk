@@ -52,7 +52,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-Map="%OUT%%PROJ_NAME%.map"
 LDFLAGS += -Wl,--start-group
 LDFLAGS += -Wl,--end-group
-LDFLAGS += --specs=rdimon.specs
+LDFLAGS += --specs=nano.specs
 LDFLAGS += -T$(SDK)/sam0/utils/linker_scripts/$(SAMD)/gcc/$(LD_FILE)
 
 OPT_DEFS += -DPROTOCOL_ARM_ATSAM_ASF

@@ -2,6 +2,7 @@
 
 #include <compiler.h>
 #include <config.h>
+#include "arm_atsam_asf/usb.h"
 
 #ifndef USB_DEVICE_VENDOR_ID
 #define USB_DEVICE_VENDOR_ID VENDOR_ID

@@ -2,20 +2,27 @@ ARM_ATSAM_DIR = $(TMK_DIR)/$(PROTOCOL_DIR)/arm_atsam_asf
 
 SRC += $(ARM_ATSAM_DIR)/main.c
 SRC += $(ARM_ATSAM_DIR)/usb.c
+SRC += $(ARM_ATSAM_DIR)/uart.c
 
 #
 # COMMON drivers
 #
 SRC += $(SDK)/common/utils/interrupt/interrupt_sam_nvic.c
 SRC += $(SDK)/sam0/drivers/system/system.c
+SRC += $(SDK)/sam0/utils/cmsis/$(SAMD)/source/gcc/startup_$(SAMD).c
+SRC += $(SDK)/sam0/utils/cmsis/$(SAMD)/source/system_$(SAMD).c
+SRC += $(SDK)/sam0/utils/syscalls/gcc/syscalls.c
 SRC += $(SDK)/sam0/drivers/system/clock/clock_$(SAMD_CLOCK)/clock.c
 SRC += $(SDK)/sam0/drivers/system/clock/clock_$(SAMD_CLOCK)/gclk.c
 SRC += $(SDK)/sam0/drivers/system/pinmux/pinmux.c
 SRC += $(SDK)/sam0/drivers/port/port.c
+SRC += $(SDK)/sam0/drivers/sercom/sercom.c
+SRC += $(SDK)/sam0/drivers/sercom/sercom_interrupt.c
+SRC += $(SDK)/sam0/drivers/sercom/usart/usart.c
 
 INCS += keyboards/$(KEYBOARD)/configs
 INCS += $(ARM_ATSAM_DIR)/configs
-$(warning INCS=$(INCS))
+INCS += $(TMK_DIR)/$(PROTOCOL_DIR)
 INCS += $(SDK)/common/utils
 INCS += $(SDK)/common2/services
 INCS += $(SDK)/common2/services/delay

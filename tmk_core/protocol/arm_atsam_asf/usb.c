@@ -6,7 +6,7 @@
 uint8_t keyboard_protocol = 1;
 uint8_t keyboard_idle = 0;
 
-void arm_atsam_asf_usb_init(void)
+void configure_usb(void)
 {
 	udc_start();
 }
