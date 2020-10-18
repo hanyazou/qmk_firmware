@@ -231,9 +231,9 @@ setPinConfig(const uint8_t gpio_pin,
              enum port_pin_pull input_pull) {
     struct port_config config;
     port_get_config_defaults(&config);
-    if (0 <= direction)
+    if (direction != -1)
         config.direction  = direction;
-    if (0 <= input_pull)
+    if (input_pull != -1)
         config.input_pull = input_pull;
     port_pin_set_config(gpio_pin, &config);
 }
@@ -241,7 +241,7 @@ setPinConfig(const uint8_t gpio_pin,
 #    define setPinInput(pin)     setPinConfig(pin, PORT_PIN_DIR_INPUT, -1)
 #    define setPinInputHigh(pin) setPinConfig(pin, PORT_PIN_DIR_INPUT, PORT_PIN_PULL_UP)
 #    define setPinInputLow(pin)  setPinConfig(pin, PORT_PIN_DIR_INPUT, PORT_PIN_PULL_DOWN)
-#    define setPinOutput(pin)    setPinConfig(pin, PORT_PIN_DIR_INPUT, -1)
+#    define setPinOutput(pin)    setPinConfig(pin, PORT_PIN_DIR_OUTPUT, -1)
 
 #    define writePinHigh(pin)    port_pin_set_output_level(pin, true)
 #    define writePinLow(pin)     port_pin_set_output_level(pin, false)
