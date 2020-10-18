@@ -3,15 +3,16 @@
 #include "quantum.h"
 
 #define LAYOUT( \
-    L00, L01, L02, L03, L04, R00, R01, R02, R03, R04, \
-    L10, L11, L12, L13, L14, R10, R11, R12, R13, R14, \
-    L20, L21, L22, L23, L24, R20, R21, R22, R23, R24, \
-    C30, C31, C32, C33, C34 \
+    K_Q, K_W, K_E, K_R, K_T, K_Y, K_U, K_I, K_O, K_P, \
+    K_A, K_S, K_D, K_F, K_G, K_H, K_J, K_K, K_L, BSP, \
+    ALT, K_Z, K_X, K_C, K_V, K_B, K_N, K_M, DLR, RET, \
+    LSH, K_0, SPC, SYM, RSH \
 ) { \
-    { L00, L01, L02, L03, L04 }, \
-    { R00, R01, R02, R03, R04 }, \
-    { L10, L11, L12, L13, L14 }, \
-    { R10, R11, R12, R13, R14 }, \
-    { L20, L21, L22, L23, L24 }, \
-    { R20, R21, R22, R23, R24 }, \
+    { K_Q, K_E, K_R, K_U, K_O }, \
+    { K_W, K_S, K_G, K_H, K_L }, \
+    { SYM, K_D, K_T, K_Y, K_I }, \
+    { K_A, K_P, RSH, RET, BSP }, \
+    { ALT, K_X, K_V, K_B, DLR }, \
+    { SPC, K_Z, K_C, K_N, K_M }, \
+    { K_0, LSH, K_F, K_J, K_K }, \
 }
