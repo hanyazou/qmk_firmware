@@ -39,8 +39,9 @@
 #include "udd.h"
 #include "udc.h"
 #include "udi_hid.h"
-#include "udi_hid_kbd.h"
+#include "common/services/usb/class/hid/device/kbd/udi_hid_kbd.h"
 #include <string.h>
+#include "arm_atsam_asf/usb.h"
 
 /**
  * \ingroup udi_hid_keyboard_group
@@ -236,6 +237,25 @@ static bool udi_hid_kbd_setreport(void)
 
 //--------------------------------------------
 //------ Interface for application
+
+bool udi_hid_kbd_report_raw(void* report, int size)
+{
+	if (size != UDI_HID_KBD_REPORT_SIZE)
+		return false;
+
+	irqflags_t flags = cpu_irq_save();
+
+	// Fill report
+	memcpy(udi_hid_kbd_report, report, size);
+	udi_hid_kbd_b_report_valid = true;
+
+	// Send report
+	udi_hid_kbd_send_report();
+
+	cpu_irq_restore(flags);
+	return true;
+}
+
 
 bool udi_hid_kbd_modifier_up(uint8_t modifier_id)
 {

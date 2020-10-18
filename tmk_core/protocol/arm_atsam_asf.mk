@@ -23,6 +23,7 @@ SRC += $(SDK)/sam0/drivers/sercom/usart/usart.c
 INCS += keyboards/$(KEYBOARD)/configs
 INCS += $(ARM_ATSAM_DIR)/configs
 INCS += $(TMK_DIR)/$(PROTOCOL_DIR)
+INCS += $(SDK)/
 INCS += $(SDK)/common/utils
 INCS += $(SDK)/common2/services
 INCS += $(SDK)/common2/services/delay
@@ -63,7 +64,7 @@ endif
 # USB driver
 #
 SRC += $(SDK)/common/services/sleepmgr/samd/sleepmgr.c
-SRC += $(SDK)/common/services/usb/class/hid/device/kbd/udi_hid_kbd.c
+SRC += $(ARM_ATSAM_DIR)/udi_hid_kbd.c
 SRC += $(SDK)/common/services/usb/class/hid/device/kbd/udi_hid_kbd_desc.c
 SRC += $(SDK)/common/services/usb/class/hid/device/udi_hid.c
 SRC += $(SDK)/common/services/usb/udc/udc.c

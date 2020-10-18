@@ -21,6 +21,6 @@
 
 #define UDI_HID_KBD_ENABLE_EXT() arm_atsam_asf_udi_hid_callback_keyboard_enable()
 #define UDI_HID_KBD_DISABLE_EXT() arm_atsam_asf_udi_hid_callback_keyboard_disable()
-#define UDI_HID_KBD_CHANGE_LED(value)
+#define UDI_HID_KBD_CHANGE_LED(value) arm_atsam_asf_udi_hid_callback_keyboard_led(value)
 
 #include "class/hid/device/kbd/udi_hid_kbd_conf.h" // At the end of conf_usb.h file
