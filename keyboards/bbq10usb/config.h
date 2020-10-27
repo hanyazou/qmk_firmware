@@ -20,13 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "config_common.h"
 
 /* USB Device descriptor parameter */
-#define VENDOR_ID           0x03EB
-#define PRODUCT_ID          0x201D
+#define VENDOR_ID           0x1209
+#define PRODUCT_ID          0x9801
 #define DEVICE_VER          0x0001
 
 #define MANUFACTURER        "@hanyazou"
 #define PRODUCT             "BB Q10 USB keyboard"
-#define SERIAL_NUM          "Unavailable"
+#define SERIAL_NUM          "0000000001"
 
 /* key matrix size */
 #define MATRIX_ROWS 7
