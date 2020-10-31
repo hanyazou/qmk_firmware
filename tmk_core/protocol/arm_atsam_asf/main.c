@@ -50,7 +50,7 @@ static uint8_t keyboard_leds(void)
 
 static void send_keyboard(report_keyboard_t *report_keyboard)
 {
-	udi_hid_kbd_report_raw(report_keyboard, 8);
+	usb_send_keyboard(report_keyboard);
 }
 
 static void send_mouse(report_mouse_t *report_mouse)

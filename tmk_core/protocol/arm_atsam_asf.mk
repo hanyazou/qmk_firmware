@@ -56,7 +56,7 @@ OPT_DEFS += -DCYCLE_MODE
 # USB driver
 #
 SRC += $(SDK)/common/services/sleepmgr/samd/sleepmgr.c
-SRC += $(ARM_ATSAM_DIR)/udi_hid_kbd.c
+SRC += $(ARM_ATSAM_DIR)/usb/udi_hid_kbd.c
 SRC += $(SDK)/common/services/usb/class/hid/device/kbd/udi_hid_kbd_desc.c
 SRC += $(SDK)/common/services/usb/class/hid/device/udi_hid.c
 SRC += $(SDK)/common/services/usb/udc/udc.c
