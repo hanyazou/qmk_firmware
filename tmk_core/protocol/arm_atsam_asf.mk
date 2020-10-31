@@ -19,6 +19,7 @@ SRC += $(SDK)/sam0/drivers/port/port.c
 SRC += $(SDK)/sam0/drivers/sercom/sercom.c
 SRC += $(SDK)/sam0/drivers/sercom/sercom_interrupt.c
 SRC += $(SDK)/sam0/drivers/sercom/usart/usart.c
+SRC += $(SDK)/sam0/drivers/wdt/wdt.c
 
 INCS += keyboards/$(KEYBOARD)/configs
 INCS += $(ARM_ATSAM_DIR)/configs

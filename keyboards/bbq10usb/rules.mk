@@ -4,6 +4,9 @@ SRC =
 #For platform and packs
 ARM_ATSAM_ASF = __SAMD21E17A__
 
+# for 4K bootloaer
+ARM_ATSAM_ASF_START_ADDR = 0x1000
+
 # Build Options
 #   comment out to disable the options.
 #

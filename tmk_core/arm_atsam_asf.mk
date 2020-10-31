@@ -52,6 +52,9 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-Map="%OUT%%PROJ_NAME%.map"
 LDFLAGS += -Wl,--start-group
 LDFLAGS += -Wl,--end-group
+ifneq ($(ARM_ATSAM_ASF_START_ADDR), "")
+LDFLAGS += -Wl,--section-start=.text=$(ARM_ATSAM_ASF_START_ADDR)
+endif
 LDFLAGS += --specs=nano.specs
 LDFLAGS += -T$(SDK)/sam0/utils/linker_scripts/$(SAMD)/gcc/$(LD_FILE)
 
