@@ -266,7 +266,7 @@ setPinConfig(const uint8_t gpio_pin,
 #    define ATOMIC_BLOCK_RESTORESTATE ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #    define ATOMIC_BLOCK_FORCEON ATOMIC_BLOCK(ATOMIC_FORCEON)
 
-#elif defined(PROTOCOL_CHIBIOS) || defined(PROTOCOL_ARM_ATSAM)
+#elif defined(PROTOCOL_CHIBIOS) || defined(PROTOCOL_ARM_ATSAM) || defined(PROTOCOL_ARM_ATSAM_ASF)
 /* atomic macro for ChibiOS / ARM ATSAM */
 #    if defined(PROTOCOL_ARM_ATSAM)
 #        include "arm_atsam_protocol.h"
@@ -276,7 +276,7 @@ static __inline__ uint8_t __interrupt_disable__(void) {
 #    if defined(PROTOCOL_CHIBIOS)
     chSysLock();
 #    endif
-#    if defined(PROTOCOL_ARM_ATSAM)
+#    if defined(PROTOCOL_ARM_ATSAM) || defined(PROTOCOL_ARM_ATSAM_ASF)
     __disable_irq();
 #    endif
     return 1;
@@ -286,7 +286,7 @@ static __inline__ void __interrupt_enable__(const uint8_t *__s) {
 #    if defined(PROTOCOL_CHIBIOS)
     chSysUnlock();
 #    endif
-#    if defined(PROTOCOL_ARM_ATSAM)
+#    if defined(PROTOCOL_ARM_ATSAM) || defined(PROTOCOL_ARM_ATSAM_ASF)
     __enable_irq();
 #    endif
     __asm__ volatile("" ::: "memory");
